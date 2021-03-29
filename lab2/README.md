@@ -1,15 +1,10 @@
 <div align="center">
 
-# LAB0
-
-[Geeting Started](#rocket-getting-started)
-|
-	@@ -11,3 +11,52 @@
-[Team](#busts_in_silhouette-team)
+# LAB2
 
 </div>
 
-Aqui encontra-se o primeiro guião da UC de gestão de grandes conjundos de dados (GGCD).
+Aqui encontra-se o terceiro guião da UC de gestão de grandes conjundos de dados (GGCD).
 
 ### :inbox_tray: Prerequisites
 
@@ -18,26 +13,31 @@ The following software is required to be installed on your system:
 - [Java SDK 14](https://openjdk.java.net/)
 - [Maven](https://maven.apache.org/maven-features.html)
 - [Docker](https://www.docker.com/)
+- 
 
-### :hammer: Development
+### :hammer: Exercício 1
 
-Para realizar um JAR da aplicação: 
+  ```
+  git clone https://github.com/big-data-europe/docker-hadoop.git
+  ```
+  ```
+  docker-compose pull 
+  ```
+  ```
+  docker-compose up
+  ```
+  
+### :hammer: Exercício 2
 
-  - Ver os JAR existentes
+ Fora de um container e Loading files local
   ```
-  ls -la target 
+  docker run --env-file hadoop.env -v /home/bruno-santos/Desktop/GGCD/git/GGCD-guioes/Gz/:/data --network docker-hadoop_default -it bde2020/hadoop-base hdfs dfs -put /data/title.basics.tsv.gz  /
   ```
-
-  - Construir o JAR
   ```
-  java -jar target/lab0-1.0-SNAPSHOT.jar 
-  ```
-
-  - executar o JAR
-  ```
-  java -jar target/lab0-1.0-SNAPSHOT.jar mini/title.basics.tsv mini/title.principals.tsv
-  ```
-
+  docker-compose up
+  
+  
+curl --output - http://www.imdb.com/interfaces/title.basics.tsv.gz | hdfs dfs -put - /title.basics.tsv.gz
 Para correr a APP num container docker
 
   - criar o ficheiro Dockerfile
