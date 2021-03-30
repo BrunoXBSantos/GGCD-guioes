@@ -31,7 +31,7 @@ The following software is required to be installed on your system:
 
  Fora de um container e Loading files local
   ```
-  docker run --env-file hadoop.env -v /home/bruno-santos/Desktop/GGCD/git/GGCD-guioes/Gz/:/data --network docker-hadoop_default -it bde2020/hadoop-base hdfs dfs -put /data/title.basics.tsv.gz  /
+  docker run --env-file hadoop.env -v /home/bruno-santos/Desktop/GGCD/git/GGCD-guioes/Gz/:/data --network docker-    hadoop_default -it bde2020/hadoop-base hdfs dfs -put /data/title.basics.tsv.gz  /
   ```
  ### :hammer: Exercício 3
  
@@ -45,11 +45,32 @@ The following software is required to be installed on your system:
  gzip -d title.basics.tsv.gz 
  ```
  
- Compress title.basics.tsv to bz2
+ Compress title.basics.tsv to bzip2
  
  ```
  bzip2 -z title.basics.tsv
  ```
+ 
+ Enviar para o servidor hadoop
+ 
+ ```
+ docker run --env-file hadoop.env -v /home/bruno-santos/Desktop/GGCD/git/GGCD-guioes/Gz/:/data --network docker-hadoop_default -it bde2020/hadoop-base hdfs dfs -put /data/title.basics.tsv.bz2  /
+ ```
+ 
+ Ver todos os ficheiros
+ 
+ ```
+ hdfs dfs -ls /
+ ```
+ 
+ 
+ Ver numero de blocks
+ 
+ ```
+ hdfs fsck /title.basics.tsv.gz -files -blocks
+```
+
+
  
 ### :hammer_and_wrench: Tools
 
