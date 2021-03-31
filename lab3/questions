@@ -1,0 +1,81 @@
+﻿###### Step 5
+
+No exercicio 3, a 2º tarefa de map-reduce teve que ler os ficheiros AvroParquet
+completo para encontrar as colunas que precisava.
+
+Por sua vez, no exercicio 4, e como criamos um schema novo apenas
+contendo a coluna que necessitavamos, as restantes colunas presentes
+no ficheiro avro-parquet foram ignoradas, o que em termos de quantidade de dados
+carregados foram consideravelmente menor
+
+exercicio 2:
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exercicio 3: 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Questions
+
+## 1 
+
+Num arquivo colunar, os dados estao organizados por colunas. Cada coluna dará origem e um ficheiro diferente, os dados da msm coluna encontram-se seguidos. 
+Por este motivo, a projeçao é muito eficiente, não necessitamos de percorrer dados de outras colunas.
+
+
+

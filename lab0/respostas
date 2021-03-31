@@ -1,0 +1,11 @@
+
+How does your solution scale with the number of lines in the input file?
+
+O programa carrega uma linha e retira a informação necessaria dessa linha e passa para a seguinte. 
+Aumenta o numero de linhas, aumenta a utilizacao dos recursos.
+
+What is the maximum file size that can be handled with a laptop?
+
+Depende da capacidade do laptop e dos recursos presentes. Para soluçoes pesadas que envolvem ficheiros 
+grandes, um laptop pode nao ser a melhor solution
+

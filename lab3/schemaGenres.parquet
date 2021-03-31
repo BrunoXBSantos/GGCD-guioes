@@ -1,0 +1,5 @@
+message TitleBasics {
+    required group genres (LIST) {
+        repeated binary array (STRING);
+    }
+}
