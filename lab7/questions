@@ -1,0 +1,5 @@
+########## 1
+Sim, posso escrever a mesma operçao em termos de rdd, mas o nivel de abstraçao era menor
+
+########## 2
+Spark SQL é mais abstrato, o esforço de programaçao é bastante menor
