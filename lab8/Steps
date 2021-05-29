@@ -1,0 +1,96 @@
+################ 1
+
+
+É necessário instalar o Sistema Spark e Hive.
+Inicialmente construir ambos os sistemas através do docker-compose e de seguida inicializar com docker-compose up.
+
+
+$ docker-compose up
+    para carregar o hive, na pasta deployment do hive. O mesmo para o Spark.
+$ docker ps
+    para ver os servers ativos
+
+Carregar o ficheiro name.basics para o hdfs presente no hive.
+O hive contem 5 containers: 2 do hdfs , 1 da RDBMS, 1 do server e 1 do hive que nao usamos
+    - 2 hdfs
+        - 1 namenode
+        - 1 datanode
+    - 1 RDBMS para guardar os metadados
+    - 1 server para aceder aos metadados
+    - 1 hive que não é util
+
+
+$ docker exec -it docker-hive_namenode_1 bash
+    para abrir a bash do namenode hdfs no hive, onde estão guardados os ficheiros completos
+$ curl https://storage.googleapis.com/ggcdimdb/mini/name.basics.tsv.bz2 | hdfs dfs -put - /name_basics/name.basics.tsv.bz2
+    para descarregar o ficheiro name.basics e guardar no hdfs
+
+    para ver o conteudo:
+$ hdfs dfs -ls /name_basics
+$ hdfs dfs -ls /
+
+$ docker exec -it docker-hive_hive-server_1 \beeline -u jdbc:hive2://localhost:10000
+        Ligar a 1 server do hive de forma a executar a command line do hive
+        Aqui estou no server que esta em contato com a BD relacional onde guarda os esquemas(metadados)
+
+
+    criar os metadados do ficheerio csv armazenado no hdfs. Isto serve para
+    depois carregar os dados para o formato parquet
+
+create external table name_basics (
+nconst string,
+primaryName string,
+birthYear integer,
+deathYear integer,
+primaryProfession array<string>,
+knowForTitles array<string>)
+row format delimited
+fields terminated by '\t'
+collection items terminated by ','
+lines terminated by '\n'
+stored as textfile
+location 'hdfs://namenode/name_basics'
+tblproperties ("skip.header.line.count"="1");
+
+Criar os metadados parquet no server do hive do ficheiro name.basics sem particionamento
+
+create table name_basics_pq (
+nconst string,
+primaryName string,
+birthYear integer,
+deathYear integer,
+primaryProfession array<string>,
+knowForTitles array<string>)
+stored as parquet;
+
+Com particionamento agora:
+
+create table name_basics_pq_parti_birthYear (
+nconst string,
+primaryName string,
+deathYear integer,
+primaryProfession array<string>,
+knowForTitles array<string>)
+partitioned by (birthYear integer)
+stored as parquet;
+
+$ describe name_basics_pq_parti_birthYear;   para ver a desc
+
+    carregar os dados para o parquet nao particionado
+$ insert overwrite table name_basics_pq select * from name_basics;
+$ select * from name_basics_pq limit 5;
+
+    agora para o parquet particionado
+$ set hive.exec.dynamic.partition.mode=nonstrict;   // config adicional
+insert overwrite table name_basics_pq_parti_birthYear partition(birthYear) select nconst,
+primaryName,
+deathYear,
+primaryProfession,
+knowForTitles,
+birthYear
+from name_basics;
+
+    No hdfs, namenode1, ver estes fix
+$ hdfs dfs -ls /
+    As tabelas parquet estao nesta diretoria:
+$ hdfs dfs -ls /user/hive/warehouse

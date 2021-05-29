@@ -1,0 +1,147 @@
+################ 1
+
+
+É necessário instalar o Sistema Spark e Hive.
+Inicialmente construir ambos os sistemas através do docker-compose e de seguida inicializar com docker-compose up.
+
+$ docker-compose up
+    para carregar o hive, na pasta deployment do hive. O mesmo para o Spark.
+$ docker ps
+    para ver os servers ativos
+
+O hive contem 5 containers: 2 do hdfs , 1 da RDBMS, 1 do server e 1 do hive que nao usamos
+    - 2 hdfs
+        - 1 namenode
+        - 1 datanode
+    - 1 RDBMS para guardar os metadados
+    - 1 server para aceder aos metadados
+    - 1 hive que não é util
+
+
+Para a pergunta 2-a só usado o ficheiro title.basics
+Quero o genero mais comum por decada
+
+(ano/10 , (genero , 1))
+groupby decada
+mapvalues
+    reduce by genero
+    sort
+    show
+
+$ docker exec -it docker-hive_namenode_1 bash
+    para abrir a bash do namenode hdfs no hive, onde estão guardados os ficheiros completos
+$ curl https://storage.googleapis.com/ggcdimdb/mini/title.basics.tsv.bz2 | hdfs dfs -put - /title_basics/title.basics.tsv.bz2
+    para descarregar o ficheiro name.basics e guardar no hdfs
+
+    para ver o conteudo:
+$ hdfs dfs -ls /name_basics
+$ hdfs dfs -ls /
+$ hdfs dfs -rmr
+$ hdfs dfs -ls /user/hive/warehouse
+
+$ docker exec -it docker-hive_hive-server_1 \beeline -u jdbc:hive2://localhost:10000
+        Ligar a 1 server do hive de forma a executar a command line do hive
+        Aqui estou no server que esta em contato com a BD relacional onde guarda os esquemas(metadados)
+
+$ show tables;
+
+TABELA TITLE_BASICS
+
+create external table title_basics (
+tconst string,
+titleType string,
+primaryTitle string,
+originalTitle string,
+isAdult boolean,
+startYear integer,
+endYear integer,
+runtimeMinutes integer,
+genres array<string>)
+row format delimited
+fields terminated by '\t'
+collection items terminated by ','
+lines terminated by '\n'
+stored as textfile
+location 'hdfs://namenode/title_basics'
+tblproperties ("skip.header.line.count"="1");
+
+TABELA title_basics_pq_parti_startYear
+
+utilizaçao comum da comand line do hove é fazer conversao formatos de ficheiro. P.E. inificiente do csv para mais eficiente como p.e. parqeut
+create table title_basics_pq_parti_startYear(
+tconst string,
+titleType string,
+primaryTitle string,
+originalTitle string,
+isAdult boolean,
+endYear integer,
+runtimeMinutes integer,
+genres array<string>)
+partitioned by (startYear integer)
+stored as parquet;
+
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+insert overwrite table title_basics_pq_parti_startYear partition(startYear) select tconst,
+titleType,
+primaryTitle,
+originalTitle,
+isAdult,
+endYear,
+runtimeMinutes,
+genres,
+startYear
+from title_basics;
+
+TABELA title_basics_pq_parti_titleType
+
+utilizaçao comum da comand line do hove é fazer conversao formatos de ficheiro. P.E. inificiente do csv para mais eficiente como p.e. parqeut
+create table title_basics_pq_parti_titleType(
+tconst string,
+primaryTitle string,
+originalTitle string,
+isAdult boolean,
+startYear integer,
+endYear integer,
+runtimeMinutes integer,
+genres array<string>)
+partitioned by (titleType string)
+stored as parquet;
+
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+insert overwrite table title_basics_pq_parti_titleType partition(titleType) select tconst,
+primaryTitle,
+originalTitle,
+isAdult,
+startYear,
+endYear,
+runtimeMinutes,
+genres,
+titleType
+from title_basics;
+
+
+SEM SER EM FORMATO PARQUET
+
+create table title_basics_pq(
+tconst string,
+titleType string,
+primaryTitle string,
+originalTitle string,
+isAdult boolean,
+startYear integer,
+endYear integer,
+runtimeMinutes integer,
+genres array<string>)
+stored as parquet;
+
+
+insert overwrite table title_basics_pq select * from title_basics;
+
+Carregar o ficheiro title.basics para o hdfs presente no hive.
+
+
+###### ficheiro title.ratings.tsv.gz
+
+
